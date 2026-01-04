@@ -16,6 +16,22 @@ Repository layout
 - `scripts/` — small utilities (sanitized, non-malicious) to support workflow automation.
 - `legal/` — disclaimers, acceptable-use, and contributor agreements.
 
+Example: `azure_csv_pretty`
+- Pretty-print or normalize Azure CSV exports (billing, activity logs, storage listings).
+- Table view with column selection and width trimming:
+
+```bash
+python3 tools/infra/azure_csv_pretty.py tools/infra/sample_azure.csv --mode table --columns Timestamp ResourceId ContentLength --trim-width 50
+```
+
+- Write a normalized CSV with numeric byte columns (adds `<Column>_bytes` for byte fields):
+
+```bash
+python3 tools/infra/azure_csv_pretty.py tools/infra/sample_azure.csv --mode csv --columns Timestamp ResourceId ContentLength --output normalized.csv
+```
+
+This produces both human-friendly `ContentLength` and a machine-friendly `ContentLength_bytes` column in the output CSV.
+
 How to use locally
 1. Clone locally and review `DISCLAIMER.md` and `SECURITY.md`.
 2. When adding tooling, include: short description, intended environment, tested OS, and authorization requirements.

@@ -14,7 +14,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.x'
+          python-version: '3.11'
       - name: Install lint deps
         run: |
           python -m pip install --upgrade pip
@@ -27,6 +27,13 @@ jobs:
     needs: lint
     steps:
       - uses: actions/checkout@v4
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -37,9 +44,4 @@ jobs:
           pip install -r requirements.txt
       - name: Run tests
         run: |
-          # prefer pytest if present, otherwise run the lightweight runner
-          if command -v pytest >/dev/null 2>&1; then
-            pytest -q
-          else
-            python3 tests/run_tests.py
-          fi
+          python -m pytest -q

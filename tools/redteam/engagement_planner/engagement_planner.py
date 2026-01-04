@@ -4,11 +4,11 @@ Engagement planner: generate a Markdown plan and checklist for an authorized red
 This is a planning/documentation tool only — it contains no offensive code.
 """
 import argparse
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 def render_markdown(target, scope, objectives, out_path, author):
-    now = datetime.utcnow().isoformat() + 'Z'
+    now = datetime.now(timezone.utc).isoformat()
     md = [f"# Engagement Plan for {target}\n",
           f"**Author**: {author}\n",
           f"**Generated**: {now}\n",
