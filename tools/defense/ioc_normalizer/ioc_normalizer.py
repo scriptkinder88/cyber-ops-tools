@@ -57,11 +57,11 @@ def read_inputs(path: Path):
         for r in reader:
             yield r.get('ioc', '').strip()
     else:
-        for l in lines:
-            l = l.strip()
-            if not l or l.startswith('#'):
+        for line in lines:
+            line = line.strip()
+            if not line or line.startswith('#'):
                 continue
-            yield l
+            yield line
 
 
 def main():

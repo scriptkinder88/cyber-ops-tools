@@ -29,6 +29,7 @@ BYTE_KEYS = {'size', 'bytes', 'contentlength', 'content_length', 'length'}
 TIME_FORMATS = [
     '%Y-%m-%dT%H:%M:%S.%fZ',
     '%Y-%m-%dT%H:%M:%SZ',
+    '%Y-%m-%dT%H:%M:%S%z',
     '%Y-%m-%d %H:%M:%S',
     '%m/%d/%Y %H:%M:%S',
     '%d/%m/%Y %H:%M:%S',
@@ -48,6 +49,15 @@ def try_parse_time(s: str) -> str:
     s = s.strip()
     if not s:
         return s
+    # normalize trailing Z to +00:00 for fromisoformat
+    s2 = s
+    if s.endswith('Z'):
+        s2 = s[:-1] + '+00:00'
+    try:
+        # Python's fromisoformat handles offsets
+        return datetime.fromisoformat(s2).isoformat()
+    except Exception:
+        pass
     for fmt in TIME_FORMATS:
         try:
             return datetime.strptime(s, fmt).isoformat()
@@ -58,17 +68,60 @@ def try_parse_time(s: str) -> str:
 
 
 def humanize_bytes(n: Any) -> str:
+    # produce human-readable string from integer bytes or parseable input
     try:
-        x = int(n)
+        # if integer-like input provided, convert
+        if isinstance(n, (int, float)):
+            bytes_val = int(n)
+        else:
+            bytes_val = parse_bytes_to_int(str(n))
+            if bytes_val is None:
+                return str(n)
     except Exception:
         return str(n)
+
+    x = bytes_val
     if x < 1024:
         return f"{x} B"
     for unit in ['KB', 'MB', 'GB', 'TB']:
-        x /= 1024.0
+        x = x / 1024.0
         if x < 1024:
             return f"{x:.2f} {unit}"
     return f"{x:.2f} PB"
+
+
+def parse_bytes_to_int(s: str) -> int | None:
+    """Parse human readable size like '1.5KB' or numeric strings into integer bytes.
+    Returns None if parsing fails.
+    """
+    import re
+
+    if s is None:
+        return None
+    t = str(s).strip()
+    if not t:
+        return None
+    m = re.match(r"^([0-9]+(?:\.[0-9]+)?)\s*([kmgtp]?b)?$", t, re.I)
+    if m:
+        val = float(m.group(1))
+        unit = (m.group(2) or '').lower()
+        mul = 1
+        if unit in ('kb', 'k'):
+            mul = 1024
+        elif unit in ('mb', 'm'):
+            mul = 1024 ** 2
+        elif unit in ('gb', 'g'):
+            mul = 1024 ** 3
+        elif unit in ('tb', 't'):
+            mul = 1024 ** 4
+        elif unit in ('pb', 'p'):
+            mul = 1024 ** 5
+        return int(val * mul)
+    # fallback: try integer
+    try:
+        return int(float(t))
+    except Exception:
+        return None
 
 
 def normalize_row(row: Dict[str, str]) -> Dict[str, str]:
@@ -80,7 +133,13 @@ def normalize_row(row: Dict[str, str]) -> Dict[str, str]:
         if any(t in low for t in ('time', 'date', 'timestamp')):
             val = try_parse_time(val)
         elif any(b in low for b in BYTE_KEYS):
-            val = humanize_bytes(val)
+            # produce both human-readable and numeric bytes column
+            bytes_int = parse_bytes_to_int(val)
+            if bytes_int is not None:
+                out[f"{key}_bytes"] = str(bytes_int)
+                val = humanize_bytes(bytes_int)
+            else:
+                val = humanize_bytes(val)
         else:
             # try numeric formatting
             try:
@@ -168,6 +227,7 @@ def main():
     p.add_argument('--delimiter', help='Force delimiter (comma or semicolon)')
     p.add_argument('--columns', nargs='+', help='Select subset of columns to show')
     p.add_argument('--trim-width', type=int, default=60, help='Max column width when printing table')
+    p.add_argument('--output', '-o', help='Write normalized CSV to this output file (mode csv or table)')
     args = p.parse_args()
 
     path = Path(args.input)
@@ -182,14 +242,31 @@ def main():
 
     if args.mode == 'table':
         print_table(rows, max_rows=args.rows, columns=args.columns, trim_width=args.trim_width)
+        if args.output:
+            # also write normalized CSV with selected columns
+            import csv
+            outp = Path(args.output)
+            with outp.open('w', newline='') as fh:
+                writer = csv.DictWriter(fh, fieldnames=list(rows[0].keys()))
+                writer.writeheader()
+                for r in rows:
+                    writer.writerow(r)
     elif args.mode == 'csv':
         # print normalized CSV to stdout
         if not rows:
             return
-        writer = csv.DictWriter(sys.stdout, fieldnames=list(rows[0].keys()))
-        writer.writeheader()
-        for r in rows:
-            writer.writerow(r)
+        if args.output:
+            outp = Path(args.output)
+            with outp.open('w', newline='') as fh:
+                writer = csv.DictWriter(fh, fieldnames=list(rows[0].keys()))
+                writer.writeheader()
+                for r in rows:
+                    writer.writerow(r)
+        else:
+            writer = csv.DictWriter(sys.stdout, fieldnames=list(rows[0].keys()))
+            writer.writeheader()
+            for r in rows:
+                writer.writerow(r)
     elif args.mode == 'summary':
         gb = args.group_by
         if not gb:

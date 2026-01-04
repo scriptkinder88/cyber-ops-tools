@@ -5,8 +5,7 @@ Generate synthetic alerts for testing.
 import argparse
 import csv
 import random
-from datetime import datetime, timedelta
-from pathlib import Path
+from datetime import datetime, timedelta, timezone
 
 SIGNATURES = ['SuspiciousLogin', 'DataExfil', 'PortScan', 'MaliciousDownload']
 SEVERITIES = ['low', 'medium', 'high', 'critical']
@@ -23,10 +22,12 @@ def main():
     p.add_argument('--start', default=None, help='Start timestamp (ISO or now)')
     args = p.parse_args()
 
-    start = datetime.utcnow()
+    start = datetime.now(timezone.utc)
     if args.start:
         try:
             start = datetime.fromisoformat(args.start)
+            if start.tzinfo is None:
+                start = start.replace(tzinfo=timezone.utc)
         except Exception:
             pass
 

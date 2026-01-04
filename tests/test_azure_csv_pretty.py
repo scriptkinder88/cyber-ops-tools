@@ -16,14 +16,15 @@ def test_normalize_row_and_select_columns():
     row = {'Timestamp': '2026-01-01T00:00:00Z', 'ContentLength': '1024', 'Name': 'example'}
     nr = normalize_row(row)
     assert 'Timestamp' in nr
+    # numeric bytes column should exist
+    assert 'ContentLength_bytes' in nr
+    assert nr['ContentLength_bytes'].isdigit()
     assert nr['ContentLength'].endswith('B') or 'KB' in nr['ContentLength']
     sel = select_columns([nr], ['Timestamp', 'Name'])
     assert list(sel[0].keys()) == ['Timestamp', 'Name']
 
 
 def test_end_to_end():
-    import tempfile
-    from pathlib import Path
     csvp = Path(tempfile.mkdtemp()) / 'sample.csv'
     csvp.write_text('Timestamp,ResourceId,ContentLength\n2026-01-01T00:00:00Z,/res/1,1024\n')
     # basic import and load

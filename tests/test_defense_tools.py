@@ -9,7 +9,8 @@ def test_ioc_normalizer(tmp_path: Path):
     inp.write_text('192.168.1.1\nEXAMPLE.COM\n4b825dc642cb6eb9a060e54bf8d69288fbee4904\n')
     out = tmp_path / 'iocs_norm.csv'
     script = ROOT / 'tools' / 'defense' / 'ioc_normalizer' / 'ioc_normalizer.py'
-    import runpy, sys
+    import runpy
+    import sys
     oldargv = sys.argv[:]
     sys.argv = [str(script), '--in', str(inp), '--out', str(out)]
     try:
@@ -25,7 +26,8 @@ def test_ioc_normalizer(tmp_path: Path):
 def test_alert_simulator(tmp_path: Path):
     out = tmp_path / 'alerts.csv'
     script = ROOT / 'tools' / 'defense' / 'alert_simulator' / 'alert_simulator.py'
-    import runpy, sys
+    import runpy
+    import sys
     oldargv = sys.argv[:]
     sys.argv = [str(script), '--count', '5', '--out', str(out)]
     try:
@@ -44,7 +46,8 @@ def test_sigma_tester(tmp_path: Path):
     spec.write_text(json.dumps({'match': 'powershell'}))
     out = tmp_path / 'matches.csv'
     script = ROOT / 'tools' / 'defense' / 'sigma_tester' / 'sigma_tester.py'
-    import runpy, sys
+    import runpy
+    import sys
     oldargv = sys.argv[:]
     sys.argv = [str(script), '--spec', str(spec), '--log', str(log), '--out', str(out)]
     try:
