@@ -1,0 +1,6 @@
+name: safe-logger
+category: blueteam
+description: Sanitized example helper to tail logs and filter by keyword (safe demo only).
+tested_os: linux
+intended_use: incident-response, lab
+license: MIT
