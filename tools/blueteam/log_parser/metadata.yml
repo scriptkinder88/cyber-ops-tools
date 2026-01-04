@@ -1,0 +1,6 @@
+name: log-parser
+category: blueteam
+description: Parse syslog or Apache combined logs and extract fields to CSV.
+tested_os: linux
+intended_use: incident-response, detection
+license: MIT

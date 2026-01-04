@@ -1,0 +1,6 @@
+name: forensic-hasher
+category: blueteam
+description: Recursively compute file hashes (SHA256, MD5) and output CSV for triage.
+tested_os: linux
+intended_use: forensics, incident-response
+license: MIT

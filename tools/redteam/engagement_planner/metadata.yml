@@ -1,0 +1,6 @@
+name: engagement-planner
+category: redteam
+description: Produce scope/checklist and runbook templates for authorized engagements (planning only).
+tested_os: linux
+intended_use: planning, documentation
+license: MIT
