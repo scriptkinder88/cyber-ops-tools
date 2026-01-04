@@ -31,6 +31,9 @@ TIME_FORMATS = [
     '%Y-%m-%dT%H:%M:%SZ',
     '%Y-%m-%d %H:%M:%S',
     '%m/%d/%Y %H:%M:%S',
+    '%d/%m/%Y %H:%M:%S',
+    '%Y-%m-%d',
+    '%m/%d/%Y',
 ]
 
 
@@ -93,20 +96,32 @@ def normalize_row(row: Dict[str, str]) -> Dict[str, str]:
     return out
 
 
-def print_table(rows: List[Dict[str, str]], max_rows: int = 20):
+def print_table(rows: List[Dict[str, str]], max_rows: int = 20, columns: List[str] = None, trim_width: int = 60):
     if not rows:
         print('No rows to display')
         return
     keys = list(rows[0].keys())
+    if columns:
+        # keep only columns that exist
+        keys = [k for k in columns if k in keys]
     # calculate widths
-    widths = {k: max(len(k), *(len(r.get(k, '')) for r in rows[:max_rows])) for k in keys}
+    widths = {}
+    for k in keys:
+        max_val = max((len(r.get(k, '')) for r in rows[:max_rows]), default=0)
+        widths[k] = max(len(k), min(max_val, trim_width))
     # header
     hdr = ' | '.join(k.ljust(widths[k]) for k in keys)
     sep = '-+-'.join('-' * widths[k] for k in keys)
     print(hdr)
     print(sep)
     for r in rows[:max_rows]:
-        line = ' | '.join(r.get(k, '').ljust(widths[k]) for k in keys)
+        pieces = []
+        for k in keys:
+            v = r.get(k, '')
+            if len(v) > widths[k]:
+                v = v[: widths[k] - 3] + '...'
+            pieces.append(v.ljust(widths[k]))
+        line = ' | '.join(pieces)
         print(line)
     if len(rows) > max_rows:
         print(f"... ({len(rows)-max_rows} more rows) ...")
@@ -125,6 +140,16 @@ def summary_by(rows: List[Dict[str, str]], group_by: str):
         print(f"{v} | {c}")
 
 
+def select_columns(rows: List[Dict[str, str]], columns: List[str]) -> List[Dict[str, str]]:
+    if not columns:
+        return rows
+    out = []
+    for r in rows:
+        nr = {k: r.get(k, '') for k in columns}
+        out.append(nr)
+    return out
+
+
 def load_csv(path: Path, delimiter: str = None) -> List[Dict[str, str]]:
     text = path.read_text(errors='ignore')
     if delimiter is None:
@@ -141,6 +166,8 @@ def main():
     p.add_argument('--rows', type=int, default=20, help='Max rows to show in table mode')
     p.add_argument('--group-by', help='Column name to group by for summary')
     p.add_argument('--delimiter', help='Force delimiter (comma or semicolon)')
+    p.add_argument('--columns', nargs='+', help='Select subset of columns to show')
+    p.add_argument('--trim-width', type=int, default=60, help='Max column width when printing table')
     args = p.parse_args()
 
     path = Path(args.input)
@@ -150,9 +177,11 @@ def main():
 
     rows_raw = load_csv(path, delimiter=args.delimiter)
     rows = [normalize_row(r) for r in rows_raw]
+    if args.columns:
+        rows = select_columns(rows, args.columns)
 
     if args.mode == 'table':
-        print_table(rows, max_rows=args.rows)
+        print_table(rows, max_rows=args.rows, columns=args.columns, trim_width=args.trim_width)
     elif args.mode == 'csv':
         # print normalized CSV to stdout
         if not rows:
