@@ -1,0 +1,4 @@
+Timestamp,ResourceId,OperationName,ResultType,ContentLength
+2026-01-01T00:00:00Z,/subscriptions/1/resourceGroups/rg1,GetBlob,Success,1024
+2026-01-01T00:01:00Z,/subscriptions/1/resourceGroups/rg1,PutBlob,Success,2048
+2026-01-01T00:02:00Z,/subscriptions/1/resourceGroups/rg2,GetBlob,Failure,512
