@@ -1,0 +1,6 @@
+name: ioc-normalizer
+category: defense
+description: Normalize lists of IOCs (IPs, domains, hashes) into consistent CSV with type and normalized value.
+tested_os: linux
+intended_use: triage, enrichment
+license: MIT
