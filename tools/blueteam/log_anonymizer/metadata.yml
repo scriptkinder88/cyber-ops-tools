@@ -1,0 +1,6 @@
+name: log-anonymizer
+category: blueteam
+description: Remove or mask IP addresses and email addresses from log files for safe sharing.
+tested_os: linux
+intended_use: incident-response, data-sharing
+license: MIT

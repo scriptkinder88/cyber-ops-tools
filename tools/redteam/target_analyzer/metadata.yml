@@ -1,0 +1,6 @@
+name: target-analyzer
+category: redteam
+description: Passive reconnaissance and target analysis tool. Performs DNS resolution, service inference from ports, risk assessment. Outputs structured CSV for engagement planning.
+tested_os: linux
+intended_use: engagement-planning,reconnaissance
+license: MIT

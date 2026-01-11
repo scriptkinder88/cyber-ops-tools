@@ -1,0 +1,6 @@
+name: sigma-tester
+category: defense
+description: Apply simple JSON detection specs (field->substring) to logs and produce matches CSV. Safe local testing only.
+tested_os: linux
+intended_use: detection-validation
+license: MIT

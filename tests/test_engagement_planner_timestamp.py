@@ -1,5 +1,5 @@
 from pathlib import Path
-from datetime import datetime, timezone
+from datetime import datetime
 import importlib.util
 
 
@@ -18,7 +18,7 @@ def test_engagement_planner_timestamp(tmp_path: Path):
     mod.render_markdown('example.com', 'scope', ['obj1'], out, 'tester')
     txt = out.read_text()
     # find generated timestamp line
-    lines = [l for l in txt.splitlines() if l.startswith('**Generated**')]
+    lines = [line for line in txt.splitlines() if line.startswith('**Generated**')]
     assert lines, 'Generated timestamp not found'
     ts = lines[0].split(':', 1)[1].strip()
     # ensure timestamp is parseable and timezone-aware (+00:00)

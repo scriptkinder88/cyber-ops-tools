@@ -1,0 +1,7 @@
+{
+  "title": "Suspicious Powershell",
+  "description": "Detect PowerShell invocation",
+  "logsource": {"product": "windows"},
+  "detection": {"selection": {"CommandLine": "*powershell*"}},
+  "level": "high"
+}

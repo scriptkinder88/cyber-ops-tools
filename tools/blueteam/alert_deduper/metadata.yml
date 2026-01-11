@@ -1,0 +1,6 @@
+name: alert-deduper
+category: blueteam
+description: Deduplicate alert CSVs by key fields and output a reduced CSV for triage.
+tested_os: linux
+intended_use: detection, triage
+license: MIT

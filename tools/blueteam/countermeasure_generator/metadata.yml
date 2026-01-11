@@ -1,0 +1,6 @@
+name: countermeasure-generator
+category: blueteam
+description: Automated defensive response tool. Reads attack indicators (IOCs) and generates firewall rules, SIEM queries, Sigma detection rules, and incident response playbooks.
+tested_os: linux
+intended_use: incident-response,threat-remediation,automation
+license: MIT

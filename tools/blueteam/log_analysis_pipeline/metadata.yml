@@ -1,0 +1,6 @@
+name: log-analysis-pipeline
+category: blueteam
+description: Integrated log analysis pipeline. Parses Apache/syslog formats, enriches with anomaly scores, deduplicates, and detects threats. Outputs scored records for SIEM ingestion and IR.
+tested_os: linux
+intended_use: incident-response,threat-detection,log-analysis
+license: MIT

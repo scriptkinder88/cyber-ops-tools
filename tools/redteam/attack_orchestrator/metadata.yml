@@ -1,0 +1,6 @@
+name: attack-orchestrator
+category: redteam
+description: Engagement phase orchestrator. Chains reconnaissance, enumeration, simulation, and analysis tools into automated workflows. Executes JSON-defined phase sequences and collects artifacts.
+tested_os: linux
+intended_use: engagement-automation,testing,validation
+license: MIT

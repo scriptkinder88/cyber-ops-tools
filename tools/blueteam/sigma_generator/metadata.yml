@@ -1,0 +1,6 @@
+name: sigma-generator
+category: blueteam
+description: Generate a minimal Sigma rule YAML from a JSON spec for quick rule templating.
+tested_os: linux
+intended_use: detection-rule authoring
+license: MIT

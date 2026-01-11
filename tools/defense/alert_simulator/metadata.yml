@@ -1,0 +1,6 @@
+name: alert-simulator
+category: defense
+description: Generate synthetic alerts CSV for testing detection pipelines and analyst triage.
+tested_os: linux
+intended_use: testing, detection-validation
+license: MIT
