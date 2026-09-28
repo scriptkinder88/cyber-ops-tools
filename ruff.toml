@@ -1,0 +1,5 @@
+# Pin the lint rule set so results do not drift with the ruff version.
+# These are ruff's historical defaults (pycodestyle E4/E7/E9 + Pyflakes F);
+# the project was green under them before newer ruff releases widened the defaults.
+[lint]
+select = ["E4", "E7", "E9", "F"]
