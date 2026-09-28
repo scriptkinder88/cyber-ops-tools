@@ -22,8 +22,6 @@ def test_normalize_row_and_select_columns():
 
 
 def test_end_to_end():
-    import tempfile
-    from pathlib import Path
     csvp = Path(tempfile.mkdtemp()) / 'sample.csv'
     csvp.write_text('Timestamp,ResourceId,ContentLength\n2026-01-01T00:00:00Z,/res/1,1024\n')
     # basic import and load

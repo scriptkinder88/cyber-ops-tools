@@ -20,6 +20,7 @@ Usage examples:
 
 import argparse
 import csv
+import re
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -48,6 +49,11 @@ def try_parse_time(s: str) -> str:
     s = s.strip()
     if not s:
         return s
+    # ISO 8601 first: keeps timezone information (a trailing 'Z' means UTC).
+    try:
+        return datetime.fromisoformat(s.replace('Z', '+00:00')).isoformat()
+    except ValueError:
+        pass
     for fmt in TIME_FORMATS:
         try:
             return datetime.strptime(s, fmt).isoformat()
@@ -69,6 +75,26 @@ def humanize_bytes(n: Any) -> str:
         if x < 1024:
             return f"{x:.2f} {unit}"
     return f"{x:.2f} PB"
+
+
+_BYTE_UNITS = {'B': 1, 'KB': 1024, 'MB': 1024 ** 2, 'GB': 1024 ** 3, 'TB': 1024 ** 4, 'PB': 1024 ** 5}
+
+
+def parse_bytes_to_int(s: Any) -> "int | None":
+    """Parse a byte size (e.g. '1024', '1KB', '1.5 KB', '2 MB') to an integer number of bytes.
+
+    Returns None when the value is empty or not a recognizable size.
+    """
+    if s is None:
+        return None
+    text = str(s).strip()
+    if not text:
+        return None
+    m = re.fullmatch(r'(?P<num>\d+(?:\.\d+)?)\s*(?P<unit>[KMGTP]?B)?', text, re.IGNORECASE)
+    if not m:
+        return None
+    factor = _BYTE_UNITS[m.group('unit').upper()] if m.group('unit') else 1
+    return int(float(m.group('num')) * factor)
 
 
 def normalize_row(row: Dict[str, str]) -> Dict[str, str]:
